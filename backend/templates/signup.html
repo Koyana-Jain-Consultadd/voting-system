@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Voting System</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      .card {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Add box shadow */
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      .container {
+        margin-top: 100px; /* Adjust top margin to center the box */
+      }
+
+      body {
+        background-image: url("https://st4.depositphotos.com/1052036/25422/v/450/depositphotos_254221236-stock-illustration-indian-people-hand-with-voting.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: top 65px right; /* Adjusted position to be 20 pixels from the bottom right */
+      }
+      input.form-control {
+        border-color: rgb(53, 131, 232); /* Color for input field borders */
+      }
+      .title-bar {
+        background-color: rgba(53, 131, 232, 0.8);
+        font-family: "Georgia", serif;
+        margin-bottom: 3%;
+        color: #fff;
+        display: flex;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 36px;
+        line-height: 180%;
+        flex: 1 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title-bar align-items-center">
+      <div class="title">Online Voting System</div>
+      <div class="button ms-auto">
+        <a class="btn btn-success me-2" href="/login">Login</a>
+        <a class="btn btn-success" href="/">Signup</a>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row mt-5">
+        <div class="col-md-6 offset-md-3">
+          <div class="card p-4">
+            <!-- Wrap form elements inside a card -->
+            <h2 class="text-center mb-4">User Registration</h2>
+            <!-- "User Registration" inside the box -->
+            <form method="POST" id="signupForm" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="name"
+                      name="name"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      name="email"
+                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                      title="Enter a valid E-mail address"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input
+                      type="tel"
+                      class="form-control"
+                      id="phone"
+                      name="phone"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select
+                      class="form-select"
+                      id="gender"
+                      name="gender"
+                      required
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="dob" class="form-label">Date of Birth</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="dob"
+                      name="dob"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="password"
+                        name="password"
+                        pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+                        title="should contain minimum 8 characters, atleast 1 letter, 1 number and 1 special character"
+                        required
+                      />
+                      <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        id="togglePassword"
+                      >
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="adhar_num" class="form-label"
+                      >Adhar Number</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="adhar_num"
+                      name="adhar_num"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="user_img" class="form-label"
+                      >Upload Image</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="user_img"
+                      name="user_img"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+                <p class="text-center">
+                  Already a user? <a href="/login">Login</a>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document
+        .getElementById("togglePassword")
+        .addEventListener("click", function () {
+          const passwordInput = document.getElementById("password");
+          const type =
+            passwordInput.getAttribute("type") === "password"
+              ? "text"
+              : "password";
+          passwordInput.setAttribute("type", type);
+        });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("signupForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Your AJAX request to submit the form data to the server
+            // Example using Fetch API
+            fetch("/", {
+              method: "POST",
+              body: new FormData(this),
+              headers: {
+                "X-Requested-With": "XMLHttpRequest", // Add this header for Django CSRF protection
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  // Registration successful, redirect to login page with alert message
+                  window.location.href = "/login/?success=true";
+                } else {
+                  // Handle other response status codes (e.g., 400, 500)
+                  // Display error message to the user
+                  console.error("Error:", response.statusText);
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          });
+      });
+    </script>
+  </body>
+</html>

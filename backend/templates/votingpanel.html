@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voting Panel</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-image: url("https://st4.depositphotos.com/1052036/25422/v/450/depositphotos_254221236-stock-illustration-indian-people-hand-with-voting.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: top 65px right;
+      }
+
+      .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+
+      .scrollable-box {
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .candidate-card {
+        width: 100%;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+      }
+
+      .candidate-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .party-symbol {
+        width: 50px;
+        height: 50px;
+        margin-right: 20px;
+      }
+
+      .candidate-name {
+        flex: 1;
+      }
+
+      .vote-button {
+        flex-shrink: 0;
+      }
+
+      .title-bar {
+        background-color: rgba(53, 131, 232, 0.8);
+        font-family: "Georgia", serif;
+        color: #fff;
+        display: flex;
+        width: 100%;
+        padding: 10px 0;
+        justify-content: space-between; /* Added */
+        align-items: center;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 36px;
+        line-height: 180%;
+        flex: 1 0 auto;
+      }
+
+      .election-select {
+        width: 100%;
+        max-width: 300px;
+        margin: 20px auto;
+      }
+
+      .result-box {
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.7
+        ); /* Change the background color as needed */
+        width: 60%; /* Adjust the width as needed */
+        padding: 20px; /* Add padding as needed */
+        border-radius: 10px; /* Add border radius as needed */
+        margin-top: -100px;
+      }
+
+      .result-btn {
+        margin-bottom: 20px;
+      }
+
+      /* Added CSS for the e_name heading */
+      .election-heading {
+        text-align: center;
+        font-size: 24px; /* Adjust font size as needed */
+        margin-bottom: 20px; /* Add margin as needed */
+        color: #333; /* Change text color as needed */
+        text-transform: uppercase; /* Change text case as needed */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title-bar align-items-center">
+      <div class="title">Online Voting System</div>
+      <form method="POST" action="/logout/">
+        <!-- Assuming '/logout' is the URL for logout -->
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Logout</button>
+      </form>
+    </div>
+    <div class="container">
+      <div class="container">
+        <div class="result-box">
+          <h1 class="election-heading">{{e_name}}</h1>
+          <button class="btn btn-success result-btn">View Results</button>
+          <div class="scrollable-box">
+            {% for result in results %}
+            <div class="candidate-card">
+              <div class="candidate-info">
+                <img
+                  src="{{ result.candidate.party.sym_img.url }}"
+                  alt="{{ result.candidate.party.p_name }} Symbol"
+                  class="party-symbol"
+                />
+                <div class="candidate-name">
+                  <h4>{{ result.candidate.c_name }}</h4>
+                  <p>{{ result.candidate.state }}</p>
+                  <p>{{ result.candidate.party.p_name }}</p>
+                  <p class="vote-count" style="display: none">
+                    Votes: {{ result.votes }}
+                  </p>
+                </div>
+                <form action="{% url 'votingpanel' %}" method="POST">
+                  {% csrf_token %}
+                  <input
+                    type="hidden"
+                    name="candidate_id"
+                    value="{{ result.candidate.c_id }}"
+                  />
+                  <input
+                    type="hidden"
+                    name="election_id"
+                    value="{{ result.election.e_id }}"
+                  />
+                  <input type="hidden" name="user_id" value="{{ user_id }}" />
+                  <!-- Add this line -->
+                  <button type="submit" class="btn btn-primary vote-button">
+                    Vote
+                  </button>
+                  <span class="vote-message"></span>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <!-- Bootstrap JS -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+        $(document).ready(function () {
+          $(".result-btn").click(function () {
+            var buttonText = $(this).text();
+            if (buttonText === "View Results") {
+              // Show leading candidate message
+              var leadingCandidate = getLeadingCandidate();
+              alert(leadingCandidate);
+              // Toggle visibility of vote counts for all candidates
+              $(".vote-count").toggle();
+              // Change button text to "Clear Results"
+              $(this).text("Clear Results");
+            } else {
+              // Toggle visibility of vote counts for all candidates
+              $(".vote-count").toggle();
+              // Change button text back to "View Results"
+              $(this).text("View Results");
+            }
+          });
+
+          function getLeadingCandidate() {
+            // Get the leading candidate and its votes
+            var leadingCandidate = "";
+            var leadingVotes = -1;
+
+            $(".candidate-card").each(function () {
+              var votesText = $(this).find(".vote-count").text(); // Corrected selector
+              var votes = parseInt(votesText.split(":")[1].trim());
+
+              if (votes > leadingVotes) {
+                leadingVotes = votes;
+                leadingCandidate = $(this).find(".candidate-name h4").text();
+              }
+            });
+
+            if (leadingVotes !== -1) {
+              return (
+                "Leading Candidate: " +
+                leadingCandidate +
+                ", Votes: " +
+                leadingVotes
+              );
+            } else {
+              return "No votes recorded yet.";
+            }
+          }
+
+          // Function to check if the current user has already voted and disable buttons accordingly
+          function checkVoteState() {
+            // Loop through each form
+            $("form").each(function () {
+              var userId = $(this).find("input[name='user_id']").val(); // Get the user ID from the hidden input field in the form
+              var electionId = $(this).find("input[name='election_id']").val(); // Get the election ID from the hidden input field in the form
+              var voted = localStorage.getItem(
+                "voted_" + userId + "_" + electionId
+              );
+              if (voted === "true") {
+                $(this).find(".vote-button").prop("disabled", true);
+              }
+            });
+          }
+
+          // Call the function to check vote state on page load
+          checkVoteState();
+
+          $(".vote-button").click(function (e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            var candidateId = form.find("input[name='candidate_id']").val();
+            var userId = form.find("input[name='user_id']").val();
+            var electionId = form.find("input[name='election_id']").val();
+            // Get the user ID from the hidden input field in the form
+            $.ajax({
+              type: "POST",
+              url: form.attr("action"),
+              data: {
+                candidate_id: candidateId,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+                user_id: userId, // Pass the user ID along with other form data
+                election_id: electionId, // Pass the election ID along with other form data
+              },
+              success: function (response) {
+                // Update button text to "Done", disable all buttons, and show vote message
+                form.find(".vote-button").text("Done").prop("disabled", true);
+                form.find(".vote-message").text("Voted successfully!");
+                // Set voted flag in localStorage for the current user and election to indicate that a vote has been submitted
+                localStorage.setItem(
+                  "voted_" + userId + "_" + electionId,
+                  "true"
+                );
+              },
+              error: function (xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+                alert("Failed to vote. Please try again.");
+              },
+            });
+          });
+        });
+      </script>
+    </div>
+  </body>
+</html>
